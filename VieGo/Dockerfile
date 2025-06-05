@@ -16,6 +16,7 @@ RUN dotnet build EXE201_VieGo.sln -c Release -o /app/build
 RUN dotnet publish VieGo/VieGo.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
 WORKDIR /app
 
 COPY --from=build /app/publish .
