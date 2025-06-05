@@ -1,20 +1,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy solution and project files
+# Sao chép solution và project files
 COPY EXE201_VieGo.sln ./
-COPY Model/Model.csproj ./Model/
-COPY Data/Data.csproj ./Data/
-COPY Business/Business.csproj ./Business/
-COPY VieGo/VieGo.csproj ./VieGo/
+COPY Model.csproj ./Model/
+COPY Data.csproj ./Data/
+COPY Business.csproj ./Business/
+COPY VieGo.csproj ./VieGo/
 
-# Restore dependencies
+# Khôi phục dependencies
 RUN dotnet restore EXE201_VieGo.sln
 
-# Copy remaining files
+# Sao chép các file còn lại
 COPY . .
 
-# Build and publish
+# Build và publish
 RUN dotnet build EXE201_VieGo.sln -c Release -o /app/build
 RUN dotnet publish VieGo/VieGo.csproj -c Release -o /app/publish
 
