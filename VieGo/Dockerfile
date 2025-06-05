@@ -1,26 +1,41 @@
 # Giai đoạn build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# Sao chép các file từ thư mục cha vì Dockerfile đang nằm trong /VieGo
-COPY ../EXE201_VieGo.sln ./
-COPY ../VieGo/*.csproj ./VieGo/
-COPY ../Business/*.csproj ./Business/
-COPY ../Data/*.csproj ./Data/
-COPY ../Model/*.csproj ./Model/
+# Tạo thư mục làm việc trong container
+WORKDIR /app
 
+# Copy file solution
+COPY EXE201_VieGo.sln ./
+
+# Copy từng project (.csproj) tương ứng
+COPY VieGo/VieGo.csproj ./VieGo/
+COPY Model/Model.csproj ./Model/
+COPY Data/Data.csproj ./Data/
+COPY Business/Business.csproj ./Business/
+
+# Restore dependencies
 RUN dotnet restore EXE201_VieGo.sln
 
-# Copy toàn bộ code từ thư mục cha (nơi có toàn bộ project)
-COPY .. .
+# Copy toàn bộ source code sau khi restore xong
+COPY . .
 
-RUN dotnet publish VieGo/VieGo.csproj -c Release -o /out
+# Build project (chỉ build, chưa publish)
+RUN dotnet build EXE201_VieGo.sln -c Release -o /app/build
 
-# Giai đoạn runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Publish project (xuất bản bản release, chỉ cần WebAPI project)
+RUN dotnet publish VieGo/VieGo.csproj -c Release -o /app/publish
+
+# Giai đoạn runtime (chạy thực tế)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Tạo thư mục làm việc
 WORKDIR /app
-COPY --from=build /out ./
 
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+# Copy từ build stage
+COPY --from=build /app/publish .
+
+# Mở port 80 cho container
+EXPOSE 80
+
+# Lệnh chạy khi container khởi động
 ENTRYPOINT ["dotnet", "VieGo.dll"]
