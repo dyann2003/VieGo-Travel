@@ -1,26 +1,28 @@
-# Use the .NET SDK image for building
+# Sử dụng image .NET SDK để build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy the solution file and all project files
+# Sao chép tệp giải pháp và các tệp .csproj
 COPY *.sln ./
 COPY VieGo/*.csproj ./VieGo/
 COPY Business/*.csproj ./Business/
 COPY Data/*.csproj ./Data/
 COPY Model/*.csproj ./Model/
 
-# Restore dependencies for the entire solution
-RUN dotnet restore
+# Khôi phục dependencies cho toàn bộ giải pháp
+RUN dotnet restore EXE201_VieGo.sln
 
-# Copy the entire solution source code
+# Sao chép toàn bộ mã nguồn
 COPY . ./
 
-# Build and publish the main project
+# Build và publish dự án chính
 RUN dotnet publish VieGo/VieGo.csproj -c Release -o /out
 
-# Use the .NET ASP.NET runtime image
+# Sử dụng image ASP.NET runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /out .
-EXPOSE 80
+# Cấu hình cổng cho Render.com
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "VieGo.dll"]
