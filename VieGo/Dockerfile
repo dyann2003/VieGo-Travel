@@ -3,10 +3,10 @@ WORKDIR /app
 
 # Sao chép solution và project files
 COPY EXE201_VieGo.sln ./
-COPY Model/Model.csproj Model/
-COPY Data/Data.csproj Data/
-COPY Business/Business.csproj Business/
-COPY VieGo/VieGo.csproj VieGo/
+COPY Model/Model.csproj ./Model/
+COPY Data/Data.csproj ./Data/
+COPY Business/Business.csproj ./Business/
+COPY VieGo/VieGo.csproj ./VieGo/
 
 # Khôi phục dependencies
 RUN dotnet restore EXE201_VieGo.sln
