@@ -2,6 +2,7 @@ using Business.IService;
 using Business.Service;
 using Data.IRepository;
 using Data.Repository;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Model.DTOs;
@@ -75,6 +76,15 @@ namespace VieGo
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
+            });
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo("/keys/"))
+                .SetApplicationName("VieGoApp");
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(80); // Đổi thành 80 cho khớp
             });
 
             builder.Services.AddHttpContextAccessor();
